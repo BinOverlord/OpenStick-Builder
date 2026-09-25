@@ -17,7 +17,7 @@ on:
       runner:
         description: 'Runner label (e.g. ubuntu-latest, self-hosted)'
         required: true
-        default: 'ubuntu-latest'
+        default: 'self-hosted'
         type: string
 
 jobs:
