@@ -12,12 +12,18 @@ rm -f "/etc/locale.gen"
 apt update -qqy
 apt upgrade -qqy
 apt autoremove -qqy
+
+# libconfig runtime package name changes between releases (libconfig9 on
+# bookworm, libconfig11 on trixie); resolve it via libconfig-dev
+LIBCONFIG=$(apt-cache depends libconfig-dev | sed -n 's/^ *Depends: \(libconfig[0-9][0-9]*\)$/\1/p' | head -n1)
+test -n "${LIBCONFIG}"
+
 apt install -qqy --no-install-recommends \
     bridge-utils \
     dnsmasq \
     hostapd \
     iptables \
-    libconfig9 \
+    ${LIBCONFIG} \
     locales \
     modemmanager \
     netcat-traditional \
