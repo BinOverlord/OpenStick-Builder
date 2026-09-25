@@ -3,27 +3,28 @@
 CHROOT=${CHROOT=$(pwd)/rootfs}
 
 #package rootfs
-rm -f rootfs.raw boot.raw
-mkdir -p files mnt
+rm -rf rootfs.raw boot.raw staging
+mkdir -p files staging/boot staging/root
+
+# populate the filesystems from directories (mkfs -d) instead of loop
+# mounting the images, so no loop devices are needed (e.g. in containers)
 
 # create boot
+tar xf rootfs.tgz -C staging/boot ./boot --exclude='./boot/linux.efi' --strip-components=2
 truncate -s 67108864 boot.raw
-mkfs.ext2 boot.raw
-mount boot.raw mnt
-tar xf rootfs.tgz -C mnt ./boot --exclude='./boot/linux.efi' --strip-components=2
-umount mnt
+mkfs.ext2 -d staging/boot boot.raw
 
 # create root img
-truncate -s 1610612736 rootfs.raw
-mkfs.ext4 rootfs.raw
-mount rootfs.raw mnt
-tar xpf rootfs.tgz -C mnt --exclude='./boot/*' --exclude='./root/*' --exclude='./dev/*'
+tar xpf rootfs.tgz -C staging/root --exclude='./boot/*' --exclude='./root/*' --exclude='./dev/*'
 
 # install gt
-cp -a dist/* mnt
+cp -a dist/* staging/root
 
-umount mnt
+truncate -s 1610612736 rootfs.raw
+mkfs.ext4 -d staging/root rootfs.raw
 
-# create sparse android images 
+rm -rf staging
+
+# create sparse android images
 img2simg rootfs.raw files/rootfs.bin
 img2simg boot.raw files/boot.bin
