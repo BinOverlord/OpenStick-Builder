@@ -3,6 +3,7 @@
 CHROOT=${CHROOT=$(pwd)/rootfs}
 RELEASE=${RELEASE=stable}
 HOST_NAME=${HOST_NAME=openstick-debian}
+BOARD=${BOARD=yiming-uz801v3}
 
 rm -rf ${CHROOT}
 
@@ -60,6 +61,7 @@ wget -O - http://mirror.postmarketos.org/postmarketos/v24.06/aarch64/linux-postm
 
 mkdir -p ${CHROOT}/boot/extlinux
 cp configs/extlinux.conf ${CHROOT}/boot/extlinux
+sed -i "s/yiming-uz801v3/${BOARD}/" ${CHROOT}/boot/extlinux/extlinux.conf
 
 # copy custom dtb's
 cp dtbs/* ${CHROOT}/boot/dtbs/qcom
